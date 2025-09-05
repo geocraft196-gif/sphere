@@ -9,6 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Firebase Config (paste your config here) -->
+    <script type="application/json" id="firebase-config">
+    {
+        "apiKey": "your-api-key",
+        "authDomain": "your-project.firebaseapp.com",
+        "projectId": "your-project-id",
+        "storageBucket": "your-project.appspot.com",
+        "messagingSenderId": "123456789",
+        "appId": "your-app-id"
+    }
+    </script>
+
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
@@ -17,10 +29,10 @@
             <ul class="nav-menu">
                 <li><a href="index.html" class="nav-link">Home</a></li>
                 <li><a href="subjects.html" class="nav-link active">Subjects</a></li>
-                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+                <li class="admin-only"><a href="admin.html" class="nav-link">Admin</a></li>
                 <li class="auth-links">
-                    <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
-                    <a href="register.html" class="btn btn-primary btn-sm">Sign Up</a>
+                    <a href="#" class="btn btn-outline btn-sm" onclick="authManager.showAuthModal()">Sign In</a>
+                    <a href="#" class="btn btn-primary btn-sm" onclick="authManager.showAuthModal(); showAuthTab('signup')">Sign Up</a>
                 </li>
                 <li class="user-menu">
                     <div class="user-dropdown">
@@ -30,8 +42,8 @@
                             <span class="dropdown-arrow">▼</span>
                         </button>
                         <div class="dropdown-menu" id="user-dropdown-menu">
-                            <a href="profile.html" class="dropdown-item">Profile</a>
-                            <a href="progress.html" class="dropdown-item">Progress</a>
+                            <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                            <a href="admin.html" class="dropdown-item" id="admin-menu-item">Admin</a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick="logout()">Sign Out</button>
                         </div>
@@ -60,7 +72,7 @@
                             <span class="stat">Loading...</span>
                         </div>
                         <div class="subject-categories" id="biology-categories"></div>
-                        <a href="subject-passages.html?subject=biology" class="btn btn-primary subject-btn">View All</a>
+                        <button class="btn btn-primary subject-btn" onclick="viewSubject('Biology')">View All</button>
                     </div>
 
                     <div class="subject-card" data-subject="physics">
@@ -71,7 +83,7 @@
                             <span class="stat">Loading...</span>
                         </div>
                         <div class="subject-categories" id="physics-categories"></div>
-                        <a href="subject-passages.html?subject=physics" class="btn btn-primary subject-btn">View All</a>
+                        <button class="btn btn-primary subject-btn" onclick="viewSubject('Physics')">View All</button>
                     </div>
 
                     <div class="subject-card" data-subject="chemistry">
@@ -82,7 +94,7 @@
                             <span class="stat">Loading...</span>
                         </div>
                         <div class="subject-categories" id="chemistry-categories"></div>
-                        <a href="subject-passages.html?subject=chemistry" class="btn btn-primary subject-btn">View All</a>
+                        <button class="btn btn-primary subject-btn" onclick="viewSubject('Chemistry')">View All</button>
                     </div>
 
                     <div class="subject-card" data-subject="geology">
@@ -93,7 +105,7 @@
                             <span class="stat">Loading...</span>
                         </div>
                         <div class="subject-categories" id="geology-categories"></div>
-                        <a href="subject-passages.html?subject=geology" class="btn btn-primary subject-btn">View All</a>
+                        <button class="btn btn-primary subject-btn" onclick="viewSubject('Geology')">View All</button>
                     </div>
 
                     <div class="subject-card" data-subject="english">
@@ -104,7 +116,7 @@
                             <span class="stat">Loading...</span>
                         </div>
                         <div class="subject-categories" id="english-categories"></div>
-                        <a href="subject-passages.html?subject=english" class="btn btn-primary subject-btn">View All</a>
+                        <button class="btn btn-primary subject-btn" onclick="viewSubject('English')">View All</button>
                     </div>
                 </div>
             </div>
@@ -117,32 +129,346 @@
         </div>
     </footer>
 
-    <script>
+    <!-- Subject Passages Modal -->
+    <div id="subject-modal" class="modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 id="subject-modal-title">Biology Passages</h3>
+                <button class="modal-close" onclick="closeSubjectModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="subject-passages-container">
+                    <div style="text-align: center; padding: 2rem;">
+                        Loading passages...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="modal">
+        <div class="modal-content" style="max-width: 1200px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 id="quiz-modal-title">Quiz</h3>
+                <button class="modal-close" onclick="closeQuizModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="quiz-container">
+                    <!-- Quiz content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { authManager } from './assets/js/auth.js';
+        import { getPublishedPassagesBySubject } from './assets/js/passages.js';
+        import { saveAttempt } from './assets/js/attempts.js';
+        import { showToast, formatDuration } from './assets/js/ui.js';
+
         // Load passage statistics for each subject
-        function loadSubjectStats() {
-            const passages = JSON.parse(localStorage.getItem('studysphere.passages.v1') || '[]');
-            const subjects = ['biology', 'physics', 'chemistry', 'geology', 'english'];
+        async function loadSubjectStats() {
+            const subjects = ['Biology', 'Physics', 'Chemistry', 'Geology', 'English'];
             
-            subjects.forEach(subject => {
-                const subjectPassages = passages.filter(p => p.subject === subject);
-                const count = subjectPassages.length;
-                const statsElement = document.getElementById(`${subject}-stats`);
-                const categoriesElement = document.getElementById(`${subject}-categories`);
+            for (const subject of subjects) {
+                try {
+                    const passages = await getPublishedPassagesBySubject(subject);
+                    const count = passages.length;
+                    const statsElement = document.getElementById(`${subject.toLowerCase()}-stats`);
+                    const categoriesElement = document.getElementById(`${subject.toLowerCase()}-categories`);
+                    
+                    if (statsElement) {
+                        statsElement.innerHTML = `<span class="stat">${count} passage${count !== 1 ? 's' : ''}</span>`;
+                    }
+                    
+                    // Show categories (if any)
+                    if (categoriesElement) {
+                        // For now, we'll show a simple message since we don't have categories in the new data model
+                        if (count > 0) {
+                            categoriesElement.innerHTML = '<span class="category-tag">Available</span>';
+                        } else {
+                            categoriesElement.innerHTML = '<span class="category-tag" style="opacity: 0.5;">No passages yet</span>';
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${subject} stats:`, error);
+                    const statsElement = document.getElementById(`${subject.toLowerCase()}-stats`);
+                    if (statsElement) {
+                        statsElement.innerHTML = '<span class="stat">Error loading</span>';
+                    }
+                }
+            }
+        }
+
+        // View subject passages
+        window.viewSubject = async function(subject) {
+            try {
+                const passages = await getPublishedPassagesBySubject(subject);
                 
-                if (statsElement) {
-                    statsElement.innerHTML = `<span class="stat">${count} passage${count !== 1 ? 's' : ''}</span>`;
+                document.getElementById('subject-modal-title').textContent = `${subject} Passages`;
+                
+                const container = document.getElementById('subject-passages-container');
+                
+                if (passages.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">📄</div>
+                            <h3>No passages available</h3>
+                            <p>Check back later for new ${subject} passages.</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                            ${passages.map(passage => `
+                                <div class="passage-card" style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #e2e8f0; transition: all 0.3s ease;">
+                                    <h4 style="margin-bottom: 0.5rem; color: #1e293b;">${passage.title}</h4>
+                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                        <span class="difficulty-badge ${passage.difficulty.toLowerCase()}">${passage.difficulty}</span>
+                                    </div>
+                                    <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.4;">
+                                        ${passage.content.substring(0, 150)}...
+                                    </p>
+                                    <div style="display: flex; gap: 0.75rem;">
+                                        <button class="btn btn-outline btn-sm" onclick="previewPassage('${passage.id}')">Preview</button>
+                                        <button class="btn btn-primary btn-sm" onclick="startQuiz('${passage.id}')">Start Quiz</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
                 }
                 
-                // Show categories
-                if (categoriesElement) {
-                    const categories = [...new Set(subjectPassages.map(p => p.category).filter(c => c))].sort();
-                    
-                    if (categories.length > 0) {
-                        categoriesElement.innerHTML = categories.slice(0, 3).map(cat => 
-                            `<a href="subject-passages.html?subject=${subject}&category=${encodeURIComponent(cat)}" class="category-tag">${cat}</a>`
-                        ).join('') + (categories.length > 3 ? `<span class="category-tag">+${categories.length - 3} more</span>` : '');
-                    } else {
-                        categoriesElement.innerHTML = '<span class="category-tag" style="opacity: 0.5;">No categories yet</span>';
+                document.getElementById('subject-modal').classList.add('show');
+            } catch (error) {
+                console.error('Error loading subject passages:', error);
+                showToast('Failed to load passages', 'error');
+            }
+        };
+
+        // Close subject modal
+        window.closeSubjectModal = function() {
+            document.getElementById('subject-modal').classList.remove('show');
+        };
+
+        // Preview passage
+        window.previewPassage = function(passageId) {
+            // For now, just start the quiz - you could implement a preview mode
+            startQuiz(passageId);
+        };
+
+        // Start quiz
+        window.startQuiz = async function(passageId) {
+            try {
+                // Get passage data
+                const passages = await getPublishedPassagesBySubject('Biology'); // This is a simplified approach
+                // In a real implementation, you'd want a getPassage(passageId) function
+                
+                // For now, redirect to a quiz page or implement inline quiz
+                // This is a simplified implementation
+                showToast('Quiz functionality would be implemented here', 'info');
+                
+                // Example of how you might implement an inline quiz:
+                // loadQuizInModal(passageId);
+            } catch (error) {
+                console.error('Error starting quiz:', error);
+                showToast('Failed to start quiz', 'error');
+            }
+        };
+
+        // Close quiz modal
+        window.closeQuizModal = function() {
+            document.getElementById('quiz-modal').classList.remove('show');
+        };
+
+        // Add hover animations to subject cards
+        document.querySelectorAll('.subject-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Load stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for Firebase to initialize
+            setTimeout(() => {
+                loadSubjectStats();
+            }, 1000);
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('subject-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSubjectModal();
+            }
+        });
+
+        document.getElementById('quiz-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeQuizModal();
+            }
+        });
+
+        // Auth tab switching
+        window.showAuthTab = function(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showAuthTab('${tabName}')"]`).classList.add('active');
+            
+            // Show/hide tab content
+            document.querySelectorAll('.auth-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+        };
+
+        // Make authManager globally available
+        window.authManager = authManager;
+    </script>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Welcome to StudySphere</h3>
+                <button class="modal-close" onclick="authManager.hideAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="auth-tabs" style="display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0;">
+                    <button class="auth-tab active" onclick="showAuthTab('signin')">Sign In</button>
+                    <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
+                </div>
+                
+                <!-- Sign In Form -->
+                <div id="signin-tab" class="auth-tab-content">
+                    <form id="signin-form">
+                        <div class="form-group">
+                            <label for="signin-email" class="form-label">Email</label>
+                            <input type="email" id="signin-email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password" class="form-label">Password</label>
+                            <input type="password" id="signin-password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Sign In</button>
+                    </form>
+                    <button class="btn btn-outline google-signin-btn" style="width: 100%; margin-bottom: 1rem;">
+                        Sign in with Google
+                    </button>
+                    <div style="text-align: center;">
+                        <a href="#" onclick="showAuthTab('reset')" style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Sign Up Form -->
+                <div id="signup-tab" class="auth-tab-content" style="display: none;">
+                    <form id="signup-form">
+                        <div class="form-group">
+                            <label for="signup-name" class="form-label">Full Name</label>
+                            <input type="text" id="signup-name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email" class="form-label">Email</label>
+                            <input type="email" id="signup-email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password" class="form-label">Password</label>
+                            <input type="password" id="signup-password" class="form-input" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm-password" class="form-label">Confirm Password</label>
+                            <input type="password" id="signup-confirm-password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Sign Up</button>
+                    </form>
+                    <button class="btn btn-outline google-signin-btn" style="width: 100%;">
+                        Sign up with Google
+                    </button>
+                </div>
+                
+                <!-- Password Reset Form -->
+                <div id="reset-tab" class="auth-tab-content" style="display: none;">
+                    <form id="reset-form">
+                        <div class="form-group">
+                            <label for="reset-email" class="form-label">Email</label>
+                            <input type="email" id="reset-email" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Send Reset Email</button>
+                    </form>
+                    <div style="text-align: center;">
+                        <a href="#" onclick="showAuthTab('signin')" style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">
+                            Back to Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        
+        .auth-tab-content {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .passage-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+    </style>
+
+    <script>
+        // Legacy function for backward compatibility
+        function loadSubjectStats() {
+            // This is now handled by the module script above
+        }
+
+        // Add hover animations to subject cards (legacy support)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover animations to subject cards
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
                     }
                 }
             });

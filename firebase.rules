@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() { 
+      return request.auth != null; 
+    }
+    
+    function isAdmin() { 
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"; 
+    }
+    
+    function isSelf(uid) { 
+      return isSignedIn() && request.auth.uid == uid; 
+    }
+    
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    // Users collection
+    match /users/{uid} {
+      // Users can read their own document, admins can read any user document
+      allow read: if isSelf(uid) || isAdmin();
+      
+      // Users can create their own document on first login
+      allow create: if isSelf(uid) && 
+                       request.resource.data.keys().hasAll(['email', 'displayName', 'role', 'createdAt']) &&
+                       request.resource.data.role == "student" &&
+                       request.resource.data.email == request.auth.token.email;
+      
+      // Users can update their own document but cannot change role (unless admin)
+      allow update: if (isSelf(uid) && !("role" in request.resource.data)) ||
+                       (isSelf(uid) && request.resource.data.role == resource.data.role) ||
+                       isAdmin();
+      
+      // Only admins can delete user documents
+      allow delete: if isAdmin();
+    }
+
+    // Passages collection
+    match /passages/{passageId} {
+      // Anyone can read published passages, admins can read all passages
+      allow read: if (resource.data.isPublished == true) || isAdmin();
+      
+      // Only admins can create, update, or delete passages
+      allow create: if isAdmin() && 
+                       request.resource.data.keys().hasAll(['title', 'subject', 'content', 'difficulty', 'createdBy', 'createdAt', 'updatedAt', 'isPublished']) &&
+                       request.resource.data.createdBy == request.auth.uid;
+      
+      allow update: if isAdmin() &&
+                       request.resource.data.updatedAt is timestamp &&
+                       request.resource.data.createdBy == resource.data.createdBy;
+      
+      allow delete: if isAdmin();
+    }
+
+    // Attempts collection
+    match /attempts/{attemptId} {
+      // Users can only read their own attempts, admins can read all attempts
+      allow read: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      
+      // Users can create attempts for themselves only
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'passageId', 'subject', 'score', 'answers', 'timeTakenSec', 'attemptedAt', 'version']) &&
+                       request.resource.data.score is number &&
+                       request.resource.data.score >= 0 &&
+                       request.resource.data.score <= 100 &&
+                       request.resource.data.timeTakenSec is number &&
+                       request.resource.data.timeTakenSec > 0;
+      
+      // Users can update their own attempts, admins can update any attempt
+      allow update: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      
+      // Users can delete their own attempts, admins can delete any attempt
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+    
+    // Deny all other requests
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

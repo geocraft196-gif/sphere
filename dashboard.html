@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .dashboard-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .attempts-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .score-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .score-excellent {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .score-good {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .score-needs-improvement {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .filters-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+        
+        .profile-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .profile-email {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quick-stats {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .quick-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .quick-stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        .quick-stat-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-sidebar {
+                order: -1;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase Config (paste your config here) -->
+    <script type="application/json" id="firebase-config">
+    {
+        "apiKey": "your-api-key",
+        "authDomain": "your-project.firebaseapp.com",
+        "projectId": "your-project-id",
+        "storageBucket": "your-project.appspot.com",
+        "messagingSenderId": "123456789",
+        "appId": "your-app-id"
+    }
+    </script>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li class="admin-only"><a href="admin.html" class="nav-link">Admin</a></li>
+                <li class="auth-links">
+                    <a href="#" class="btn btn-outline btn-sm" onclick="authManager.showAuthModal()">Sign In</a>
+                </li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="dashboard.html" class="dropdown-item active">Dashboard</a>
+                            <a href="admin.html" class="dropdown-item" id="admin-menu-item">Admin</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="signOut()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Email Verification Banner -->
+    <div id="email-verification-banner" class="verification-banner" style="display: none;">
+        <div class="container">
+            <p>⚠️ Please verify your email address to access all features. Check your inbox for a verification link.</p>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Your Dashboard</h1>
+                <p class="page-subtitle">Track your progress and performance across all subjects</p>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <div class="container">
+                <!-- Overview Stats -->
+                <div class="stats-overview" id="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <span class="stat-number" id="total-attempts">0</span>
+                        <span class="stat-label">Total Attempts</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <span class="stat-number" id="average-score">0%</span>
+                        <span class="stat-label">Average Score</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <span class="stat-number" id="total-time">0m</span>
+                        <span class="stat-label">Study Time</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <span class="stat-number" id="best-score">0%</span>
+                        <span class="stat-label">Best Score</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-main">
+                        <!-- Performance Charts -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Score Trends</h3>
+                                <select id="trend-subject-filter" class="filter-select">
+                                    <option value="">All Subjects</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Geology">Geology</option>
+                                    <option value="English">English</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="score-trend-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Subject Performance</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="subject-performance-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Recent Attempts -->
+                        <div class="attempts-table">
+                            <div style="padding: 1.5rem; border-bottom: 1px solid #e2e8f0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin: 0;">Recent Quiz Attempts</h3>
+                                    <span id="attempts-count" style="color: #64748b; font-size: 0.9rem;">0 attempts</span>
+                                </div>
+                                <div class="filters-bar">
+                                    <select id="attempts-subject-filter" class="filter-select">
+                                        <option value="">All Subjects</option>
+                                        <option value="Biology">Biology</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Geology">Geology</option>
+                                        <option value="English">English</option>
+                                    </select>
+                                    <input type="date" id="attempts-date-filter" class="filter-select">
+                                </div>
+                            </div>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Passage</th>
+                                            <th>Subject</th>
+                                            <th>Score</th>
+                                            <th>Time</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attempts-tbody">
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                                Loading attempts...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-sidebar">
+                        <!-- Profile Card -->
+                        <div class="profile-card">
+                            <div class="profile-avatar" id="profile-avatar">U</div>
+                            <div class="profile-name" id="profile-name">User Name</div>
+                            <div class="profile-email" id="profile-email">user@example.com</div>
+                            <div class="quick-stats">
+                                <div class="quick-stat">
+                                    <span class="quick-stat-label">Recent Score</span>
+                                    <span class="quick-stat-value" id="recent-score">0%</span>
+                                </div>
+                                <div class="quick-stat">
+                                    <span class="quick-stat-label">This Week</span>
+                                    <span class="quick-stat-value" id="week-attempts">0 attempts</span>
+                                </div>
+                                <div class="quick-stat">
+                                    <span class="quick-stat-label">Favorite Subject</span>
+                                    <span class="quick-stat-value" id="favorite-subject">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Distribution -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Activity Distribution</h3>
+                            </div>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="activity-distribution-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sign In Required</h3>
+                <button class="modal-close" onclick="authManager.hideAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="auth-tabs" style="display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0;">
+                    <button class="auth-tab active" onclick="showAuthTab('signin')">Sign In</button>
+                    <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
+                </div>
+                
+                <!-- Sign In Form -->
+                <div id="signin-tab" class="auth-tab-content">
+                    <form id="signin-form">
+                        <div class="form-group">
+                            <label for="signin-email" class="form-label">Email</label>
+                            <input type="email" id="signin-email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password" class="form-label">Password</label>
+                            <input type="password" id="signin-password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Sign In</button>
+                    </form>
+                    <button class="btn btn-outline google-signin-btn" style="width: 100%; margin-bottom: 1rem;">
+                        Sign in with Google
+                    </button>
+                    <div style="text-align: center;">
+                        <a href="#" onclick="showAuthTab('reset')" style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Sign Up Form -->
+                <div id="signup-tab" class="auth-tab-content" style="display: none;">
+                    <form id="signup-form">
+                        <div class="form-group">
+                            <label for="signup-name" class="form-label">Full Name</label>
+                            <input type="text" id="signup-name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email" class="form-label">Email</label>
+                            <input type="email" id="signup-email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password" class="form-label">Password</label>
+                            <input type="password" id="signup-password" class="form-input" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm-password" class="form-label">Confirm Password</label>
+                            <input type="password" id="signup-confirm-password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Sign Up</button>
+                    </form>
+                    <button class="btn btn-outline google-signin-btn" style="width: 100%;">
+                        Sign up with Google
+                    </button>
+                </div>
+                
+                <!-- Password Reset Form -->
+                <div id="reset-tab" class="auth-tab-content" style="display: none;">
+                    <form id="reset-form">
+                        <div class="form-group">
+                            <label for="reset-email" class="form-label">Email</label>
+                            <input type="email" id="reset-email" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Send Reset Email</button>
+                    </form>
+                    <div style="text-align: center;">
+                        <a href="#" onclick="showAuthTab('signin')" style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">
+                            Back to Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .verification-banner {
+            background: #fef3c7;
+            border-bottom: 1px solid #f59e0b;
+            padding: 0.75rem 0;
+            text-align: center;
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        
+        .auth-tab-content {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <script type="module">
+        import { authManager } from './assets/js/auth.js';
+        import { requireAuth } from './assets/js/roles.js';
+        import { getAttemptsForUser, getUserStats } from './assets/js/attempts.js';
+        import { getPassages } from './assets/js/passages.js';
+        import { 
+            createScoreTrendChart, 
+            createSubjectPerformanceChart, 
+            createAttemptDistributionChart,
+            updateChartData,
+            destroyChart
+        } from './assets/js/charts.js';
+        import { showToast, formatDate, formatDuration, debounce, showEmptyState } from './assets/js/ui.js';
+
+        let currentAttempts = [];
+        let currentStats = null;
+        let scoreTrendChart = null;
+        let subjectChart = null;
+        let distributionChart = null;
+
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth to initialize
+            setTimeout(() => {
+                if (!requireAuth()) {
+                    return;
+                }
+                loadDashboardData();
+            }, 1000);
+        });
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadUserStats(),
+                    loadRecentAttempts(),
+                    updateProfileInfo()
+                ]);
+                
+                renderCharts();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showToast('Failed to load dashboard data', 'error');
+            }
+        }
+
+        // Load user statistics
+        async function loadUserStats() {
+            try {
+                currentStats = await getUserStats();
+                
+                // Update overview stats
+                document.getElementById('total-attempts').textContent = currentStats.totalAttempts;
+                document.getElementById('average-score').textContent = currentStats.averageScore + '%';
+                document.getElementById('total-time').textContent = currentStats.totalTimeMinutes + 'm';
+                document.getElementById('best-score').textContent = currentStats.bestScore + '%';
+                
+                // Update sidebar quick stats
+                document.getElementById('recent-score').textContent = currentStats.recentScore + '%';
+                
+                // Calculate this week's attempts
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                const weekAttempts = currentStats.scoreHistory.filter(
+                    attempt => new Date(attempt.attemptedAt) > oneWeekAgo
+                ).length;
+                document.getElementById('week-attempts').textContent = weekAttempts + ' attempts';
+                
+                // Find favorite subject
+                const favoriteSubject = Object.entries(currentStats.subjectStats)
+                    .filter(([_, stats]) => stats.attempts > 0)
+                    .sort((a, b) => b[1].attempts - a[1].attempts)[0];
+                document.getElementById('favorite-subject').textContent = 
+                    favoriteSubject ? favoriteSubject[0] : '-';
+                
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+            }
+        }
+
+        // Load recent attempts
+        async function loadRecentAttempts() {
+            try {
+                currentAttempts = await getAttemptsForUser({ limitCount: 50 });
+                renderAttemptsTable();
+            } catch (error) {
+                console.error('Error loading attempts:', error);
+            }
+        }
+
+        // Update profile information
+        function updateProfileInfo() {
+            if (authManager.currentUser) {
+                const user = authManager.currentUser;
+                document.getElementById('profile-name').textContent = 
+                    user.displayName || user.email.split('@')[0];
+                document.getElementById('profile-email').textContent = user.email;
+                document.getElementById('profile-avatar').textContent = 
+                    (user.displayName || user.email).charAt(0).toUpperCase();
+            }
+        }
+
+        // Render attempts table
+        function renderAttemptsTable() {
+            const tbody = document.getElementById('attempts-tbody');
+            document.getElementById('attempts-count').textContent = 
+                `${currentAttempts.length} attempt${currentAttempts.length !== 1 ? 's' : ''}`;
+            
+            if (currentAttempts.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-icon">📊</div>
+                            <p>No quiz attempts yet</p>
+                            <a href="subjects.html" class="btn btn-primary btn-sm">Start Your First Quiz</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = currentAttempts.map(attempt => {
+                const scoreClass = attempt.score >= 80 ? 'score-excellent' : 
+                                 attempt.score >= 60 ? 'score-good' : 'score-needs-improvement';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">Passage ${attempt.passageId.substring(0, 8)}...</div>
+                        </td>
+                        <td>${attempt.subject}</td>
+                        <td>
+                            <span class="score-badge ${scoreClass}">${attempt.score}%</span>
+                        </td>
+                        <td>${formatDuration(attempt.timeTakenSec)}</td>
+                        <td>${formatDate(attempt.attemptedAt)}</td>
+                        <td>
+                            <button class="btn btn-outline btn-xs" onclick="retakeQuiz('${attempt.passageId}')">
+                                Retake
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Render charts
+        function renderCharts() {
+            if (!currentStats) return;
+
+            // Score trend chart
+            const trendCanvas = document.getElementById('score-trend-chart');
+            if (trendCanvas && currentStats.scoreHistory.length > 0) {
+                if (scoreTrendChart) destroyChart(scoreTrendChart);
+                
+                const trendData = currentStats.scoreHistory.map(attempt => ({
+                    date: new Date(attempt.attemptedAt),
+                    score: attempt.score
+                }));
+                
+                scoreTrendChart = createScoreTrendChart(trendCanvas, trendData);
+            }
+
+            // Subject performance chart
+            const subjectCanvas = document.getElementById('subject-performance-chart');
+            if (subjectCanvas) {
+                if (subjectChart) destroyChart(subjectChart);
+                subjectChart = createSubjectPerformanceChart(subjectCanvas, currentStats.subjectStats);
+            }
+
+            // Activity distribution chart
+            const distributionCanvas = document.getElementById('activity-distribution-chart');
+            if (distributionCanvas) {
+                if (distributionChart) destroyChart(distributionChart);
+                distributionChart = createAttemptDistributionChart(distributionCanvas, currentStats.subjectStats);
+            }
+        }
+
+        // Filter attempts
+        const attemptsSubjectFilter = document.getElementById('attempts-subject-filter');
+        const attemptsDateFilter = document.getElementById('attempts-date-filter');
+        const trendSubjectFilter = document.getElementById('trend-subject-filter');
+
+        attemptsSubjectFilter.addEventListener('change', filterAttempts);
+        attemptsDateFilter.addEventListener('change', filterAttempts);
+        trendSubjectFilter.addEventListener('change', updateTrendChart);
+
+        function filterAttempts() {
+            const subjectFilter = attemptsSubjectFilter.value;
+            const dateFilter = attemptsDateFilter.value;
+
+            let filtered = currentAttempts;
+
+            if (subjectFilter) {
+                filtered = filtered.filter(attempt => attempt.subject === subjectFilter);
+            }
+
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter);
+                filtered = filtered.filter(attempt => {
+                    const attemptDate = new Date(attempt.attemptedAt);
+                    return attemptDate.toDateString() === filterDate.toDateString();
+                });
+            }
+
+            // Temporarily replace currentAttempts for rendering
+            const originalAttempts = currentAttempts;
+            currentAttempts = filtered;
+            renderAttemptsTable();
+            currentAttempts = originalAttempts;
+        }
+
+        function updateTrendChart() {
+            if (!scoreTrendChart || !currentStats) return;
+
+            const subjectFilter = trendSubjectFilter.value;
+            let trendData = currentStats.scoreHistory;
+
+            if (subjectFilter) {
+                trendData = trendData.filter(attempt => attempt.subject === subjectFilter);
+            }
+
+            const chartData = trendData.map(attempt => ({
+                date: new Date(attempt.attemptedAt),
+                score: attempt.score
+            }));
+
+            // Update chart
+            scoreTrendChart.data.labels = chartData.map(item => item.date.toLocaleDateString());
+            scoreTrendChart.data.datasets[0].data = chartData.map(item => item.score);
+            scoreTrendChart.update();
+        }
+
+        // Retake quiz
+        window.retakeQuiz = async function(passageId) {
+            try {
+                const passages = await getPassages({ publishedOnly: true });
+                const passage = passages.find(p => p.id === passageId);
+                
+                if (passage) {
+                    window.location.href = `quiz.html?passage=${passageId}`;
+                } else {
+                    showToast('Passage not found or no longer available', 'error');
+                }
+            } catch (error) {
+                console.error('Error finding passage:', error);
+                showToast('Failed to load passage', 'error');
+            }
+        };
+
+        // Auth tab switching
+        window.showAuthTab = function(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showAuthTab('${tabName}')"]`).classList.add('active');
+            
+            // Show/hide tab content
+            document.querySelectorAll('.auth-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+        };
+
+        // Make functions globally available
+        window.authManager = authManager;
+    </script>
+</body>
+</html>

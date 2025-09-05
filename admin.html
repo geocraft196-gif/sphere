@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .passages-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-published {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .status-draft {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-xs {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .passage-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase Config (paste your config here) -->
+    <script type="application/json" id="firebase-config">
+    {
+        "apiKey": "your-api-key",
+        "authDomain": "your-project.firebaseapp.com",
+        "projectId": "your-project-id",
+        "storageBucket": "your-project.appspot.com",
+        "messagingSenderId": "123456789",
+        "appId": "your-app-id"
+    }
+    </script>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="admin.html" class="nav-link active">Admin</a></li>
+                <li class="auth-links">
+                    <a href="#" class="btn btn-outline btn-sm" onclick="authManager.showAuthModal()">Sign In</a>
+                </li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">A</div>
+                            <span id="user-name">Admin</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                            <a href="admin.html" class="dropdown-item active" id="admin-menu-item">Admin</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="signOut()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Admin Dashboard</h1>
+                <p class="page-subtitle">Manage passages and monitor system activity</p>
+            </div>
+        </section>
+
+        <section class="admin-section">
+            <div class="container">
+                <!-- Statistics -->
+                <div class="admin-stats" id="admin-stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-passages">0</span>
+                        <span class="stat-label">Total Passages</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="published-passages">0</span>
+                        <span class="stat-label">Published</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="draft-passages">0</span>
+                        <span class="stat-label">Drafts</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-attempts">0</span>
+                        <span class="stat-label">Total Attempts</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="admin-actions">
+                    <button class="btn btn-primary" onclick="showCreatePassageForm()">
+                        <span>➕</span> Create Passage
+                    </button>
+                    <button class="btn btn-outline" onclick="refreshData()">
+                        <span>🔄</span> Refresh
+                    </button>
+                </div>
+
+                <!-- Create/Edit Passage Form -->
+                <div id="passage-form-container" class="passage-form" style="display: none;">
+                    <h3 id="form-title">Create New Passage</h3>
+                    <form id="passage-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="passage-title" class="form-label">Title *</label>
+                                <input type="text" id="passage-title" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="passage-subject" class="form-label">Subject *</label>
+                                <select id="passage-subject" class="form-select" required>
+                                    <option value="">Select Subject</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Geology">Geology</option>
+                                    <option value="English">English</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="passage-difficulty" class="form-label">Difficulty *</label>
+                                <select id="passage-difficulty" class="form-select" required>
+                                    <option value="">Select Difficulty</option>
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="passage-content" class="form-label">Content *</label>
+                            <textarea id="passage-content" class="form-textarea" required 
+                                placeholder="Enter the passage content here..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="passage-published">
+                                <label for="passage-published" class="form-label">Publish immediately</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="hidePassageForm()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Passage</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="search-filters">
+                    <input type="text" id="search-input" class="search-input" 
+                           placeholder="Search passages by title...">
+                    <select id="subject-filter" class="filter-select">
+                        <option value="">All Subjects</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Geology">Geology</option>
+                        <option value="English">English</option>
+                    </select>
+                    <select id="status-filter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+
+                <!-- Passages Table -->
+                <div class="passages-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Subject</th>
+                                <th>Difficulty</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passages-tbody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem;">
+                                    Loading passages...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Admin Access Required</h3>
+                <button class="modal-close" onclick="authManager.hideAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please sign in with an admin account to access this page.</p>
+                <form id="signin-form">
+                    <div class="form-group">
+                        <label for="signin-email" class="form-label">Email</label>
+                        <input type="email" id="signin-email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signin-password" class="form-label">Password</label>
+                        <input type="password" id="signin-password" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                </form>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button class="btn btn-outline google-signin-btn" style="width: 100%;">
+                        Sign in with Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { authManager } from './assets/js/auth.js';
+        import { requireAdmin } from './assets/js/roles.js';
+        import { 
+            createPassage, 
+            updatePassage, 
+            deletePassage, 
+            getPassages, 
+            togglePassagePublished,
+            getPassageStats 
+        } from './assets/js/passages.js';
+        import { showToast, showConfirmDialog, debounce, formatDate } from './assets/js/ui.js';
+
+        let currentPassages = [];
+        let editingPassageId = null;
+
+        // Check admin access
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth to initialize
+            setTimeout(() => {
+                if (!requireAdmin()) {
+                    return;
+                }
+                loadAdminData();
+            }, 1000);
+        });
+
+        // Load admin dashboard data
+        async function loadAdminData() {
+            try {
+                await Promise.all([
+                    loadPassageStats(),
+                    loadPassages()
+                ]);
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                showToast('Failed to load admin data', 'error');
+            }
+        }
+
+        // Load passage statistics
+        async function loadPassageStats() {
+            try {
+                const stats = await getPassageStats();
+                
+                document.getElementById('total-passages').textContent = stats.total;
+                document.getElementById('published-passages').textContent = stats.published;
+                document.getElementById('draft-passages').textContent = stats.drafts;
+                
+                // TODO: Load attempt statistics
+                document.getElementById('total-attempts').textContent = '0';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load and display passages
+        async function loadPassages() {
+            try {
+                currentPassages = await getPassages({ publishedOnly: false });
+                renderPassagesTable();
+            } catch (error) {
+                console.error('Error loading passages:', error);
+                showToast('Failed to load passages', 'error');
+            }
+        }
+
+        // Render passages table
+        function renderPassagesTable() {
+            const tbody = document.getElementById('passages-tbody');
+            
+            if (currentPassages.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem;">
+                            No passages found. <a href="#" onclick="showCreatePassageForm()">Create your first passage</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = currentPassages.map(passage => {
+                const createdDate = passage.createdAt?.toDate ? 
+                    formatDate(passage.createdAt.toDate()) : 
+                    'Unknown';
+                
+                const statusClass = passage.isPublished ? 'status-published' : 'status-draft';
+                const statusText = passage.isPublished ? 'Published' : 'Draft';
+                
+                return `
+                    <tr>
+                        <td>
+                            <strong>${passage.title}</strong>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">
+                                ${passage.content.substring(0, 100)}...
+                            </div>
+                        </td>
+                        <td>${passage.subject}</td>
+                        <td>
+                            <span class="difficulty-badge ${passage.difficulty.toLowerCase()}">${passage.difficulty}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-outline btn-xs" onclick="editPassage('${passage.id}')">
+                                    Edit
+                                </button>
+                                <button class="btn ${passage.isPublished ? 'btn-warning' : 'btn-success'} btn-xs" 
+                                        onclick="togglePublished('${passage.id}', ${!passage.isPublished})">
+                                    ${passage.isPublished ? 'Unpublish' : 'Publish'}
+                                </button>
+                                <button class="btn btn-danger btn-xs" onclick="deletePassageConfirm('${passage.id}')">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Show create passage form
+        window.showCreatePassageForm = function() {
+            editingPassageId = null;
+            document.getElementById('form-title').textContent = 'Create New Passage';
+            document.getElementById('passage-form').reset();
+            document.getElementById('passage-form-container').style.display = 'block';
+            document.getElementById('passage-title').focus();
+        };
+
+        // Hide passage form
+        window.hidePassageForm = function() {
+            document.getElementById('passage-form-container').style.display = 'none';
+            editingPassageId = null;
+        };
+
+        // Edit passage
+        window.editPassage = function(passageId) {
+            const passage = currentPassages.find(p => p.id === passageId);
+            if (!passage) return;
+
+            editingPassageId = passageId;
+            document.getElementById('form-title').textContent = 'Edit Passage';
+            
+            document.getElementById('passage-title').value = passage.title;
+            document.getElementById('passage-subject').value = passage.subject;
+            document.getElementById('passage-difficulty').value = passage.difficulty;
+            document.getElementById('passage-content').value = passage.content;
+            document.getElementById('passage-published').checked = passage.isPublished;
+            
+            document.getElementById('passage-form-container').style.display = 'block';
+            document.getElementById('passage-title').focus();
+        };
+
+        // Toggle published status
+        window.togglePublished = async function(passageId, isPublished) {
+            try {
+                await togglePassagePublished(passageId, isPublished);
+                await loadPassages();
+                await loadPassageStats();
+            } catch (error) {
+                console.error('Error toggling published status:', error);
+            }
+        };
+
+        // Delete passage with confirmation
+        window.deletePassageConfirm = async function(passageId) {
+            const passage = currentPassages.find(p => p.id === passageId);
+            if (!passage) return;
+
+            const confirmed = await showConfirmDialog(
+                `Are you sure you want to delete "${passage.title}"? This action cannot be undone.`,
+                'Delete',
+                'Cancel'
+            );
+
+            if (confirmed) {
+                try {
+                    await deletePassage(passageId);
+                    await loadPassages();
+                    await loadPassageStats();
+                } catch (error) {
+                    console.error('Error deleting passage:', error);
+                }
+            }
+        };
+
+        // Refresh data
+        window.refreshData = function() {
+            loadAdminData();
+        };
+
+        // Handle passage form submission
+        document.getElementById('passage-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                title: document.getElementById('passage-title').value.trim(),
+                subject: document.getElementById('passage-subject').value,
+                difficulty: document.getElementById('passage-difficulty').value,
+                content: document.getElementById('passage-content').value.trim(),
+                isPublished: document.getElementById('passage-published').checked
+            };
+
+            try {
+                if (editingPassageId) {
+                    await updatePassage(editingPassageId, formData);
+                } else {
+                    await createPassage(formData);
+                }
+
+                hidePassageForm();
+                await loadPassages();
+                await loadPassageStats();
+            } catch (error) {
+                console.error('Error saving passage:', error);
+            }
+        });
+
+        // Search and filter functionality
+        const searchInput = document.getElementById('search-input');
+        const subjectFilter = document.getElementById('subject-filter');
+        const statusFilter = document.getElementById('status-filter');
+
+        const debouncedFilter = debounce(filterPassages, 300);
+
+        searchInput.addEventListener('input', debouncedFilter);
+        subjectFilter.addEventListener('change', filterPassages);
+        statusFilter.addEventListener('change', filterPassages);
+
+        function filterPassages() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const subjectFilter = document.getElementById('subject-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+
+            let filtered = currentPassages;
+
+            // Filter by search term
+            if (searchTerm) {
+                filtered = filtered.filter(passage => 
+                    passage.title.toLowerCase().includes(searchTerm) ||
+                    passage.content.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Filter by subject
+            if (subjectFilter) {
+                filtered = filtered.filter(passage => passage.subject === subjectFilter);
+            }
+
+            // Filter by status
+            if (statusFilter) {
+                const isPublished = statusFilter === 'published';
+                filtered = filtered.filter(passage => passage.isPublished === isPublished);
+            }
+
+            // Temporarily replace currentPassages for rendering
+            const originalPassages = currentPassages;
+            currentPassages = filtered;
+            renderPassagesTable();
+            currentPassages = originalPassages;
+        }
+
+        // Make functions globally available
+        window.authManager = authManager;
+    </script>
+</body>
+</html>
