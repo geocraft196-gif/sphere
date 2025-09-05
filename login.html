@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="auth-section">
+            <div class="container">
+                <div class="auth-container">
+                    <div class="auth-card">
+                        <div class="auth-header">
+                            <h1>Welcome Back</h1>
+                            <p>Sign in to your StudySphere account</p>
+                        </div>
+                        
+                        <form id="login-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="remember-me">
+                                    <span class="checkmark"></span>
+                                    Remember me
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary auth-btn">Sign In</button>
+                        </form>
+                        
+                        <div class="auth-footer">
+                            <p>Don't have an account? <a href="register.html" class="auth-link">Sign up</a></p>
+                            <a href="forgot-password.html" class="auth-link">Forgot password?</a>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-benefits">
+                        <h3>Why create an account?</h3>
+                        <ul class="benefits-list">
+                            <li>📊 Track your progress across all subjects</li>
+                            <li>🎯 Get personalized study recommendations</li>
+                            <li>⏱️ View detailed performance analytics</li>
+                            <li>🏆 Earn achievements and badges</li>
+                            <li>💾 Sync your data across devices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/toast.js"></script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>

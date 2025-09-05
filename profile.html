@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item active">Profile</a>
+                            <a href="progress.html" class="dropdown-item">Progress</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Profile Settings</h1>
+                <p class="page-subtitle">Manage your account and preferences</p>
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <div class="container">
+                <div class="profile-layout">
+                    <div class="profile-sidebar">
+                        <div class="profile-card">
+                            <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+                            <h3 id="profile-name">User Name</h3>
+                            <p id="profile-email">user@example.com</p>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number" id="total-quizzes">0</span>
+                                    <span class="stat-label">Quizzes Taken</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="avg-score">0%</span>
+                                    <span class="stat-label">Average Score</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="study-streak">0</span>
+                                    <span class="stat-label">Day Streak</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-content">
+                        <div class="settings-card">
+                            <h3>Account Information</h3>
+                            <form id="profile-form" class="profile-form">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="edit-name" class="form-label">Full Name</label>
+                                        <input type="text" id="edit-name" class="form-input" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="edit-email" class="form-label">Email</label>
+                                        <input type="email" id="edit-email" class="form-input" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="edit-target-exam" class="form-label">Target Exam</label>
+                                        <select id="edit-target-exam" class="form-input">
+                                            <option value="">Select your target exam</option>
+                                            <option value="urt">URT (University Entrance)</option>
+                                            <option value="medical">Medical School Entrance</option>
+                                            <option value="engineering">Engineering Entrance</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h3>Change Password</h3>
+                            <form id="password-form" class="profile-form">
+                                <div class="form-group">
+                                    <label for="current-password" class="form-label">Current Password</label>
+                                    <input type="password" id="current-password" class="form-input" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="new-password" class="form-label">New Password</label>
+                                    <input type="password" id="new-password" class="form-input" required minlength="6">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="confirm-new-password" class="form-label">Confirm New Password</label>
+                                    <input type="password" id="confirm-new-password" class="form-input" required>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-warning">Change Password</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h3>Study Preferences</h3>
+                            <form id="preferences-form" class="profile-form">
+                                <div class="form-group">
+                                    <label for="default-time-limit" class="form-label">Default Quiz Time (minutes)</label>
+                                    <input type="number" id="default-time-limit" class="form-input" min="5" max="60" value="10">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="preferred-difficulty" class="form-label">Preferred Difficulty</label>
+                                    <select id="preferred-difficulty" class="form-input">
+                                        <option value="">No preference</option>
+                                        <option value="Easy">Easy</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Hard">Hard</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="email-notifications">
+                                        <span class="checkmark"></span>
+                                        Email notifications for study reminders
+                                    </label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="auto-submit">
+                                        <span class="checkmark"></span>
+                                        Auto-submit quizzes when time expires
+                                    </label>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Save Preferences</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/toast.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/profile.js"></script>
+</body>
+</html>

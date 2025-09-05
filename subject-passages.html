@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passages - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+                <li class="auth-links">
+                    <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Sign Up</a>
+                </li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item">Profile</a>
+                            <a href="progress.html" class="dropdown-item">Progress</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-header">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="subjects.html">Subjects</a> / <span id="current-subject">Loading...</span>
+                </div>
+                <h1 class="page-title" id="subject-title">Loading...</h1>
+                <p class="page-subtitle">Practice passages and quizzes to prepare for your exam</p>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="loadFromFolder()">Load From Folder</button>
+                    <a href="admin/add-passage.html" class="btn btn-outline">Add New Passage</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="passages-section">
+            <div class="container">
+                <div class="passages-header">
+                    <div class="passages-count">
+                        <span id="passages-count">0 passages found</span>
+                    </div>
+                    <div class="filter-controls">
+                        <select id="category-filter" class="select-input">
+                            <option value="">All Categories</option>
+                        </select>
+                        <select id="sort-select" class="select-input">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="title">Title A-Z</option>
+                            <option value="difficulty">Difficulty</option>
+                            <option value="category">Category</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="passages-grid" id="passages-grid">
+                    <div class="empty-state" id="empty-state">
+                        <div class="empty-icon">📄</div>
+                        <h3>No passages found</h3>
+                        <p>Start by adding some passages for this subject</p>
+                        <a href="admin/add-passage.html" class="btn btn-primary">Add Passage</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Passage Preview Modal -->
+    <div id="passage-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Passage Title</h3>
+                <button class="modal-close" onclick="closePassageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="passage-meta">
+                    <span class="difficulty-badge" id="modal-difficulty">Medium</span>
+                    <span class="time-badge" id="modal-time">7 min</span>
+                </div>
+                <div class="passage-text" id="modal-text"></div>
+                <div class="passage-questions">
+                    <h4>Questions: <span id="modal-question-count">0</span></h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePassageModal()">Close</button>
+                <button class="btn btn-primary" onclick="startQuizFromModal()" id="start-quiz-btn">Start Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/toast.js"></script>
+    <script src="assets/js/subject-passages.js"></script>
+</body>
+</html>

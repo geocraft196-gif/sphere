@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Passage - StudySphere Admin</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="../subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="add-passage.html" class="nav-link active">Admin</a></li>
+                <li class="auth-links">
+                    <a href="../login.html" class="btn btn-outline btn-sm">Sign In</a>
+                    <a href="../register.html" class="btn btn-primary btn-sm">Sign Up</a>
+                </li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="../profile.html" class="dropdown-item">Profile</a>
+                            <a href="../progress.html" class="dropdown-item">Progress</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Add New Passage</h1>
+                <p class="page-subtitle">Create practice passages with multiple-choice questions</p>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="container">
+                <form id="passage-form" class="passage-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="title" class="form-label">Passage Title *</label>
+                            <input type="text" id="title" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="source" class="form-label">Source</label>
+                            <input type="text" id="source" class="form-input" placeholder="e.g., National Geographic, 2024">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Subject *</label>
+                            <select id="subject" class="form-input" required>
+                                <option value="">Select Subject</option>
+                                <option value="biology">Biology</option>
+                                <option value="physics">Physics</option>
+                                <option value="chemistry">Chemistry</option>
+                                <option value="geology">Geology</option>
+                                <option value="english">English</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category" class="form-label">Category</label>
+                            <div class="category-input-group">
+                                <select id="category" class="form-input" onchange="handleCategoryChange()">
+                                    <option value="">Select or create category</option>
+                                </select>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="showNewCategoryInput()">New Category</button>
+                            </div>
+                            <input type="text" id="new-category" class="form-input hidden" placeholder="Enter new category name" onblur="handleNewCategory()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="difficulty" class="form-label">Difficulty *</label>
+                            <select id="difficulty" class="form-input" required>
+                                <option value="">Select Difficulty</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeLimit" class="form-label">Time Limit (minutes) *</label>
+                            <input type="number" id="timeLimit" class="form-input" min="1" max="60" value="10" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" id="tags" class="form-input" placeholder="e.g., genetics, evolution (comma-separated)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passageText" class="form-label">Passage Text *</label>
+                        <textarea id="passageText" class="form-textarea" rows="10" required placeholder="Enter the passage text here..."></textarea>
+                    </div>
+
+                    <div class="questions-section">
+                        <div class="questions-header">
+                            <h3>Questions</h3>
+                            <div class="questions-actions">
+                                <button type="button" class="btn btn-outline" onclick="pasteQuestions()">Paste Questions</button>
+                                <button type="button" class="btn btn-primary" onclick="addQuestion()">Add Question</button>
+                            </div>
+                        </div>
+                        <div id="questions-container">
+                            <!-- Questions will be added here -->
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
+                        <button type="button" class="btn btn-outline" onclick="loadDraft()">Load Draft</button>
+                        <button type="button" class="btn btn-warning" onclick="clearForm()">Clear All</button>
+                        <button type="button" class="btn btn-success" onclick="savePassage()">Save Passage</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Paste Questions Modal -->
+    <div id="paste-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Paste Questions</h3>
+                <button class="modal-close" onclick="closePasteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Paste your questions in this format (one per line):</p>
+                <div class="code-example">
+Question: What is photosynthesis?<br>
+A) Respiration in plants<br>
+B) Light-dependent energy conversion *<br>
+C) Water absorption<br>
+D) Nutrient transport<br>
+<br>
+Question: Which organelle contains chlorophyll?<br>
+A) Nucleus<br>
+B) Mitochondria<br>
+C) Chloroplast *<br>
+D) Ribosome
+                </div>
+                <textarea id="paste-textarea" class="form-textarea" rows="10" placeholder="Paste your questions here..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePasteModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="processPastedQuestions()">Add Questions</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/toast.js"></script>
+    <script src="../assets/js/add-passage.js"></script>
+</body>
+</html>

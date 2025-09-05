@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySphere - URT Exam Preparation</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-D1Ssd9rY.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" crossorigin href="/assets/index-CTgMdFfZ.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>StudySphere</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Master Your URT Exam</h1>
+                <p class="hero-subtitle">Comprehensive preparation materials and practice tests for university entrance exams</p>
+                <div class="hero-buttons">
+                    <a href="subjects.html" class="btn btn-primary">Start Studying</a>
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="scroll-indicator" onclick="scrollToFeatures()">
+                <div class="scroll-arrow">↓</div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Why Choose StudySphere?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Comprehensive Content</h3>
+                        <p>Extensive question banks covering all URT subjects with detailed explanations</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⏱️</div>
+                        <h3>Timed Practice</h3>
+                        <p>Realistic exam conditions with countdown timers to improve your speed</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Progress Tracking</h3>
+                        <p>Monitor your performance and identify areas for improvement</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Targeted Practice</h3>
+                        <p>Focus on specific topics and difficulty levels to maximize learning</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="subjects-preview">
+            <div class="container">
+                <h2 class="section-title">Available Subjects</h2>
+                <div class="subjects-grid">
+                    <div class="subject-preview-card">
+                        <div class="subject-icon biology-icon">🧬</div>
+                        <h3>Biology</h3>
+                        <p>Cell biology, genetics, ecology, and more</p>
+                    </div>
+                    <div class="subject-preview-card">
+                        <div class="subject-icon physics-icon">⚛️</div>
+                        <h3>Physics</h3>
+                        <p>Mechanics, thermodynamics, waves, and modern physics</p>
+                    </div>
+                    <div class="subject-preview-card">
+                        <div class="subject-icon chemistry-icon">⚗️</div>
+                        <h3>Chemistry</h3>
+                        <p>Organic, inorganic, and physical chemistry</p>
+                    </div>
+                    <div class="subject-preview-card">
+                        <div class="subject-icon geology-icon">🌍</div>
+                        <h3>Geology</h3>
+                        <p>Earth science, minerals, and geological processes</p>
+                    </div>
+                    <div class="subject-preview-card">
+                        <div class="subject-icon english-icon">📖</div>
+                        <h3>English</h3>
+                        <p>Grammar, comprehension, and writing skills</p>
+                    </div>
+                </div>
+                <div class="text-center" style="margin-top: 2rem;">
+                    <a href="subjects.html" class="btn btn-primary">View All Subjects</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 StudySphere. Empowering students for success.</p>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToFeatures() {
+            document.getElementById('features').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Add smooth scrolling to all anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

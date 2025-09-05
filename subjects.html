@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link active">Subjects</a></li>
+                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+                <li class="auth-links">
+                    <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Sign Up</a>
+                </li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item">Profile</a>
+                            <a href="progress.html" class="dropdown-item">Progress</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">Choose Your Subject</h1>
+                <p class="page-subtitle">Select a subject to view available practice passages and quizzes</p>
+            </div>
+        </section>
+
+        <section class="subjects-section">
+            <div class="container">
+                <div class="subjects-grid">
+                    <div class="subject-card" data-subject="biology">
+                        <div class="subject-icon biology-icon">🧬</div>
+                        <h3 class="subject-title">Biology</h3>
+                        <p class="subject-description">Explore life sciences with comprehensive passages covering cell biology, genetics, evolution, ecology, and human anatomy</p>
+                        <div class="subject-stats" id="biology-stats">
+                            <span class="stat">Loading...</span>
+                        </div>
+                        <div class="subject-categories" id="biology-categories"></div>
+                        <a href="subject-passages.html?subject=biology" class="btn btn-primary subject-btn">View All</a>
+                    </div>
+
+                    <div class="subject-card" data-subject="physics">
+                        <div class="subject-icon physics-icon">⚛️</div>
+                        <h3 class="subject-title">Physics</h3>
+                        <p class="subject-description">Master physics concepts through practice with mechanics, thermodynamics, electromagnetism, waves, and modern physics</p>
+                        <div class="subject-stats" id="physics-stats">
+                            <span class="stat">Loading...</span>
+                        </div>
+                        <div class="subject-categories" id="physics-categories"></div>
+                        <a href="subject-passages.html?subject=physics" class="btn btn-primary subject-btn">View All</a>
+                    </div>
+
+                    <div class="subject-card" data-subject="chemistry">
+                        <div class="subject-icon chemistry-icon">⚗️</div>
+                        <h3 class="subject-title">Chemistry</h3>
+                        <p class="subject-description">Excel in chemistry with comprehensive coverage of organic, inorganic, physical chemistry, and chemical reactions</p>
+                        <div class="subject-stats" id="chemistry-stats">
+                            <span class="stat">Loading...</span>
+                        </div>
+                        <div class="subject-categories" id="chemistry-categories"></div>
+                        <a href="subject-passages.html?subject=chemistry" class="btn btn-primary subject-btn">View All</a>
+                    </div>
+
+                    <div class="subject-card" data-subject="geology">
+                        <div class="subject-icon geology-icon">🌍</div>
+                        <h3 class="subject-title">Geology</h3>
+                        <p class="subject-description">Understand Earth sciences with passages on minerals, rocks, geological processes, and environmental geology</p>
+                        <div class="subject-stats" id="geology-stats">
+                            <span class="stat">Loading...</span>
+                        </div>
+                        <div class="subject-categories" id="geology-categories"></div>
+                        <a href="subject-passages.html?subject=geology" class="btn btn-primary subject-btn">View All</a>
+                    </div>
+
+                    <div class="subject-card" data-subject="english">
+                        <div class="subject-icon english-icon">📖</div>
+                        <h3 class="subject-title">English</h3>
+                        <p class="subject-description">Improve language skills with reading comprehension, grammar, vocabulary, and writing practice passages</p>
+                        <div class="subject-stats" id="english-stats">
+                            <span class="stat">Loading...</span>
+                        </div>
+                        <div class="subject-categories" id="english-categories"></div>
+                        <a href="subject-passages.html?subject=english" class="btn btn-primary subject-btn">View All</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 StudySphere. Empowering students for success.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Load passage statistics for each subject
+        function loadSubjectStats() {
+            const passages = JSON.parse(localStorage.getItem('studysphere.passages.v1') || '[]');
+            const subjects = ['biology', 'physics', 'chemistry', 'geology', 'english'];
+            
+            subjects.forEach(subject => {
+                const subjectPassages = passages.filter(p => p.subject === subject);
+                const count = subjectPassages.length;
+                const statsElement = document.getElementById(`${subject}-stats`);
+                const categoriesElement = document.getElementById(`${subject}-categories`);
+                
+                if (statsElement) {
+                    statsElement.innerHTML = `<span class="stat">${count} passage${count !== 1 ? 's' : ''}</span>`;
+                }
+                
+                // Show categories
+                if (categoriesElement) {
+                    const categories = [...new Set(subjectPassages.map(p => p.category).filter(c => c))].sort();
+                    
+                    if (categories.length > 0) {
+                        categoriesElement.innerHTML = categories.slice(0, 3).map(cat => 
+                            `<a href="subject-passages.html?subject=${subject}&category=${encodeURIComponent(cat)}" class="category-tag">${cat}</a>`
+                        ).join('') + (categories.length > 3 ? `<span class="category-tag">+${categories.length - 3} more</span>` : '');
+                    } else {
+                        categoriesElement.innerHTML = '<span class="category-tag" style="opacity: 0.5;">No categories yet</span>';
+                    }
+                }
+            });
+        }
+
+        // Add hover animations to subject cards
+        document.querySelectorAll('.subject-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Load stats when page loads
+        document.addEventListener('DOMContentLoaded', loadSubjectStats);
+    </script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>

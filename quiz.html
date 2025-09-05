@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - StudySphere</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>StudySphere</h1></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="subjects.html" class="nav-link">Subjects</a></li>
+                <li><a href="admin/add-passage.html" class="nav-link">Admin</a></li>
+                <li class="auth-links">
+                    <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Sign Up</a>
+                </li>
+                <li class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="user-avatar">U</div>
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item">Profile</a>
+                            <a href="progress.html" class="dropdown-item">Progress</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()">Sign Out</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content quiz-main">
+        <div class="quiz-header">
+            <div class="container">
+                <div class="quiz-info">
+                    <h1 id="quiz-title">Loading Quiz...</h1>
+                    <div class="quiz-meta">
+                        <span class="difficulty-badge" id="quiz-difficulty">Medium</span>
+                        <span class="subject-badge" id="quiz-subject">Subject</span>
+                        <span class="subject-badge" id="quiz-category" style="display: none;">Category</span>
+                    </div>
+                </div>
+                <div class="quiz-timer">
+                    <div class="timer-display">
+                        <span id="time-remaining">00:00</span>
+                    </div>
+                    <div class="timer-bar">
+                        <div class="timer-progress" id="timer-progress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-content">
+            <div class="container">
+                <div class="quiz-layout">
+                    <div class="passage-section">
+                        <div class="passage-card">
+                            <h3>Passage</h3>
+                            <div class="passage-text" id="passage-text">Loading passage...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="questions-section">
+                        <div class="questions-card">
+                            <div class="questions-header">
+                                <h3>Questions</h3>
+                                <span class="questions-count" id="questions-count">0 questions</span>
+                            </div>
+                            <div class="questions-container" id="questions-container">
+                                <!-- Questions will be loaded here -->
+                            </div>
+                            <div class="quiz-actions">
+                                <button class="btn btn-secondary" onclick="goBack()">Exit Quiz</button>
+                                <button class="btn btn-primary" onclick="submitQuiz()" id="submit-btn">Submit Quiz</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quiz Results</h3>
+            </div>
+            <div class="modal-body">
+                <div class="results-summary">
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <span id="score-percentage">0%</span>
+                        </div>
+                        <div class="score-details">
+                            <p>Score: <span id="score-fraction">0/0</span></p>
+                            <p>Time: <span id="time-taken">0:00</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-breakdown" id="results-breakdown">
+                    <!-- Question breakdown will be shown here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="goBack()">Back to Passages</button>
+                <button class="btn btn-primary" onclick="retakeQuiz()">Retake Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/toast.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/quiz.js"></script>
+</body>
+</html>
